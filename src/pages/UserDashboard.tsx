@@ -1,8 +1,15 @@
 
 import { Link } from "react-router-dom";
-import { ClipboardCheck, Search, Plus, Calendar, Clock, Star } from "lucide-react";
+import { useTask } from "@/contexts/TaskContext";
+import { ClipboardCheck, Search, Plus, Calendar, Clock, Star, MapPin, ArrowRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function UserDashboard() {
+  const { tasks, activeTask } = useTask();
+  const completedTasks = tasks.filter(task => task.status === 'completed');
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 mobile-safe-area">
       <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
@@ -15,6 +22,35 @@ export default function UserDashboard() {
             Need something done? Book an errand and let our trusted erranders handle it for you.
           </p>
         </div>
+
+        {/* Active Task Alert */}
+        {activeTask && (
+          <Card className="mb-8 border-l-4 border-l-emerald-500 bg-emerald-50/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock className="w-4 h-4 text-emerald-600" />
+                    <span className="font-semibold text-emerald-800">Active Task</span>
+                    <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700">
+                      {activeTask.status.replace('-', ' ')}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-emerald-700">{activeTask.title}</p>
+                  <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1">
+                    <MapPin className="w-3 h-3" />
+                    {activeTask.taskLocation}
+                  </p>
+                </div>
+                <Link to="/tracking">
+                  <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+                    Track <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12 px-4 sm:px-0">
@@ -50,7 +86,7 @@ export default function UserDashboard() {
               <h4 className="text-sm font-medium text-gray-500">Active Tasks</h4>
               <Calendar className="w-5 h-5 text-blue-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">3</p>
+            <p className="text-2xl font-bold text-gray-900">{activeTask ? 1 : 0}</p>
             <p className="text-sm text-gray-600">In progress</p>
           </div>
 
@@ -59,8 +95,8 @@ export default function UserDashboard() {
               <h4 className="text-sm font-medium text-gray-500">Completed</h4>
               <ClipboardCheck className="w-5 h-5 text-emerald-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">24</p>
-            <p className="text-sm text-gray-600">This month</p>
+            <p className="text-2xl font-bold text-gray-900">{completedTasks.length}</p>
+            <p className="text-sm text-gray-600">Total tasks</p>
           </div>
 
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 sm:col-span-2 lg:col-span-1">
@@ -77,21 +113,27 @@ export default function UserDashboard() {
         <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 mx-4 sm:mx-0">
           <h3 className="text-lg font-semibold mb-4 text-gray-900">Recent Activity</h3>
           <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0"></div>
-              <span className="text-sm text-gray-600 flex-1">Grocery delivery completed</span>
-              <span className="text-xs text-gray-400">2h ago</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-              <span className="text-sm text-gray-600 flex-1">Document pickup in progress</span>
-              <span className="text-xs text-gray-400">4h ago</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <div className="w-2 h-2 bg-purple-500 rounded-full flex-shrink-0"></div>
-              <span className="text-sm text-gray-600 flex-1">New errander assigned</span>
-              <span className="text-xs text-gray-400">6h ago</span>
-            </div>
+            {tasks.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-gray-500">No tasks yet. Book your first errand!</p>
+              </div>
+            ) : (
+              tasks.slice(0, 3).map((task) => (
+                <div key={task.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    task.status === 'completed' ? 'bg-emerald-500' : 
+                    task.status === 'in-progress' ? 'bg-blue-500' : 'bg-amber-500'
+                  }`}></div>
+                  <span className="text-sm text-gray-600 flex-1">{task.title}</span>
+                  <Badge variant="outline" className="text-xs">
+                    {task.status}
+                  </Badge>
+                  <span className="text-xs text-gray-400">
+                    {new Date(task.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
