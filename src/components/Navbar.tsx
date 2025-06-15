@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Map, Wallet, Users, MessageCircle, LogOut, Home as HomeIcon, ClipboardCheck, Search, Package, User2, Directions } from "lucide-react";
+import { Map, Wallet, Users, MessageCircle, LogOut, Home as HomeIcon, ClipboardCheck, Search, Package, User2, Navigation } from "lucide-react";
 import ToggleRoleButton from "./ToggleRoleButton";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ const userLinks = [
 const erranderLinks = [
   { to: "/dashboard", label: "Dashboard", icon: <HomeIcon size={18} className="inline ml-1 mb-[2px]" /> },
   { to: "/tasks", label: "My Jobs", icon: <Package size={18} className="inline ml-1 mb-[2px]" /> },
-  { to: "/directions", label: "Directions", icon: <Directions size={18} className="inline ml-1 mb-[2px]" /> },
+  { to: "/directions", label: "Directions", icon: <Navigation size={18} className="inline ml-1 mb-[2px]" /> },
   { to: "/wallet", label: "Wallet", icon: <Wallet size={18} className="inline ml-1 mb-[2px]" /> },
 ];
 
