@@ -1,17 +1,18 @@
-
 import { Link, useLocation } from "react-router-dom";
-import { Map, Wallet } from "lucide-react";
+import { Map, Wallet, Users, MessageCircle, LogOut } from "lucide-react";
 import ToggleRoleButton from "./ToggleRoleButton";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { to: "/", label: "Dashboard" },
+  { to: "/", label: "Home" },
   { to: "/book", label: "Book Errand" },
   { to: "/tasks", label: "My Tasks" },
-  { to: "/wallet", label: "Wallet", icon: <Wallet size={18} className="inline ml-1 mb-[2px]" /> }
+  { to: "/chat", label: "Chat" },
+  { to: "/tracking", label: "Tracking" },
+  { to: "/wallet", label: "Wallet", icon: <Wallet size={18} className="inline ml-1 mb-[2px]" /> },
 ];
 
-const Navbar = () => {
+const Navbar = ({ signedIn, onLogout }) => {
   const location = useLocation();
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-primary shadow-sm sticky top-0 z-30">
@@ -32,7 +33,10 @@ const Navbar = () => {
           </Link>
         ))}
       </div>
-      <ToggleRoleButton />
+      <div className="flex gap-2 items-center">
+        {signedIn && <button className="text-primary-foreground bg-primary/60 px-3 py-1 rounded-lg hover:opacity-80 flex items-center gap-2" onClick={onLogout}><LogOut size={18} />Log Out</button>}
+        <ToggleRoleButton />
+      </div>
     </nav>
   );
 };
