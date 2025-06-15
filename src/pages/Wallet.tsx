@@ -10,14 +10,28 @@ const MOCK_TRANSACTIONS: Transaction[] = [
 ];
 
 const WalletPage = () => {
-  const [balance] = useState(() => MOCK_TRANSACTIONS.reduce((acc, t) => t.type === "credit" ? acc + t.amount : acc - t.amount, 0));
-  const [modalOpen, setModalOpen] = useState(false);
+  const role = localStorage.getItem("role") === "errander" ? "errander" : "customer";
+  const [balance, setBalance] = useState(
+    MOCK_TRANSACTIONS.reduce((acc, t) => t.type === "credit" ? acc + t.amount : acc - t.amount, 0)
+  );
+  const [mpesa, setMpesa] = useState("");
   const [amount, setAmount] = useState("");
+  const [err, setErr] = useState<string | null>(null);
 
-  const requestPayout = () => {
-    setModalOpen(false);
-    setTimeout(() => alert(`Ksh ${amount} payout requested to Mpesa! (Mock)`), 350);
+  const withdraw = () => {
+    setErr(null);
+    if (!mpesa.match(/^\d{10,}/)) {
+      setErr("Enter a valid Mpesa number.");
+      return;
+    }
+    if (!amount || Number(amount) < 50 || Number(amount) > balance) {
+      setErr("Enter a valid amount.");
+      return;
+    }
+    setBalance(b => b - Number(amount));
+    setMpesa("");
     setAmount("");
+    setTimeout(() => alert(`Withdrew Ksh ${amount} to ${mpesa}. (Mock)`), 350);
   };
 
   return (
@@ -27,12 +41,42 @@ const WalletPage = () => {
           <Wallet className="w-8 h-8 mr-2" /> Wallet Balance
         </div>
         <div className="text-4xl font-mono text-emerald-700 mt-1">Ksh {balance}</div>
-        <button
-          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold mt-3 hover-scale transition"
-          onClick={() => setModalOpen(true)}
-        >
-          Request Mpesa Payout
-        </button>
+        {role === "errander" && (
+          <div className="w-full flex flex-col gap-4 mt-3 bg-muted/60 rounded-xl p-5 shadow-inner border">
+            <div>
+              <label className="font-semibold block text-muted-foreground mb-1">Mpesa Number</label>
+              <input
+                value={mpesa}
+                onChange={e => setMpesa(e.target.value)}
+                type="tel"
+                placeholder="e.g. 0712345678"
+                className="px-3 py-2 border rounded w-full"
+                maxLength={13}
+              />
+            </div>
+            <div>
+              <label className="font-semibold block text-muted-foreground mb-1">Withdraw Amount (Ksh)</label>
+              <input
+                value={amount}
+                onChange={e => setAmount(e.target.value.replace(/\D/, ""))}
+                type="number"
+                placeholder="Min 50"
+                className="px-3 py-2 border rounded w-full"
+                min={50}
+                max={balance}
+              />
+            </div>
+            <button
+              className="bg-primary text-primary-foreground rounded py-2 font-semibold mt-1 transition hover:bg-primary/80"
+              onClick={withdraw}
+              disabled={!mpesa || !amount || Number(amount) < 50 || Number(amount) > balance}
+            >
+              Withdraw to Mpesa
+            </button>
+            {err && <div className="text-red-600 font-medium">{err}</div>}
+            <p className="text-xs text-muted-foreground">Withdrawals are mock. Real payout integration coming soon.</p>
+          </div>
+        )}
       </section>
       <h3 className="font-semibold mb-4 pl-1 text-base text-muted-foreground">Recent Transactions</h3>
       <div className="flex flex-col gap-3">
@@ -40,35 +84,6 @@ const WalletPage = () => {
           <WalletTransactionCard key={t.id} transaction={t} />
         )}
       </div>
-      {modalOpen && (
-        <div className="fixed inset-0 z-40 bg-black/40 flex items-center justify-center" style={{ backdropFilter: "blur(1.5px)" }}>
-          <div className="bg-background rounded-lg shadow-lg p-8 w-full max-w-sm animate-scale-in text-center">
-            <h4 className="text-lg font-semibold mb-2">Enter Payout Amount</h4>
-            <input
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              type="number"
-              placeholder="e.g. 500"
-              className="mb-4 px-3 py-2 border rounded w-full text-center"
-              min={50}
-              max={balance}
-            />
-            <div className="flex gap-3">
-              <button
-                className="bg-primary text-primary-foreground rounded px-4 py-2 w-full font-semibold hover:bg-primary/90"
-                onClick={requestPayout}
-                disabled={!amount || Number(amount) < 50 || Number(amount) > balance}
-              >
-                Request
-              </button>
-              <button className="ml-2 px-4 py-2 w-full bg-muted rounded text-muted-foreground" onClick={() => setModalOpen(false)}>
-                Cancel
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-4">Payouts to Mpesa (mock). Real money needs full integration.</p>
-          </div>
-        </div>
-      )}
     </main>
   );
 };
