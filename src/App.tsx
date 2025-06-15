@@ -1,12 +1,14 @@
 
-import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { TaskProvider } from "./contexts/TaskContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Auth from "./pages/Auth";
 import UserDashboard from "./pages/UserDashboard";
 import ErranderDashboard from "./pages/ErranderDashboard";
 import BookErrand from "./pages/BookErrand";
@@ -22,42 +24,68 @@ import ErranderDirections from "./pages/ErranderDirections";
 
 const queryClient = new QueryClient();
 
-export default function App() {
-  const [user, setUser] = useState<{ role: "user" | "errander", name: string } | null>(null);
+function AppContent() {
+  const { user, userProfile, signOut, loading } = useAuth();
 
-  const handleSignIn = (u) => setUser(u);
-  const handleLogout = () => setUser(null);
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
+    <BrowserRouter>
+      <Navbar 
+        signedIn={!!user} 
+        role={userProfile?.role} 
+        onLogout={handleLogout} 
+      />
+      <Routes>
+        <Route path="/" element={!user ? <Home /> : <Navigate to="/dashboard" />} />
+        <Route path="/auth" element={!user ? <Auth /> : <Navigate to="/dashboard" />} />
+        <Route path="/dashboard" element={
+          user
+            ? userProfile?.role === "user"
+              ? <UserDashboard />
+              : userProfile?.role === "errander"
+              ? <ErranderDashboard />
+              : <Navigate to="/auth" />
+            : <Navigate to="/auth" />
+        } />
+        <Route path="/book" element={user && userProfile?.role === "user" ? <BookErrand /> : <Navigate to="/auth" />} />
+        <Route path="/tasks" element={user && userProfile?.role === "errander" ? <Tasks /> : <Navigate to="/auth" />} />
+        <Route path="/directions" element={user && userProfile?.role === "errander" ? <ErranderDirections /> : <Navigate to="/auth" />} />
+        <Route path="/wallet" element={user && userProfile?.role === "errander" ? <WalletPage /> : <Navigate to="/auth" />} />
+        <Route path="/tracking" element={user && userProfile?.role === "user" ? <Tracking /> : <Navigate to="/auth" />} />
+        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/auth" />} />
+        <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
+        <Route path="/chat/:taskId" element={user ? <Chat /> : <Navigate to="/auth" />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default function App() {
+  return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <TaskProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Navbar signedIn={!!user} role={user?.role} onLogout={handleLogout} />
-            <Routes>
-              <Route path="/" element={<Home onSignIn={handleSignIn} />} />
-              <Route path="/dashboard" element={
-                user?.role === "user"
-                  ? <UserDashboard />
-                  : user?.role === "errander"
-                  ? <ErranderDashboard />
-                  : <Navigate to="/" />
-              } />
-              <Route path="/book" element={user?.role === "user" ? <BookErrand /> : <Navigate to="/" />} />
-              <Route path="/tasks" element={user?.role === "errander" ? <Tasks /> : <Navigate to="/" />} />
-              <Route path="/directions" element={user?.role === "errander" ? <ErranderDirections /> : <Navigate to="/" />} />
-              <Route path="/wallet" element={user?.role === "errander" ? <WalletPage /> : <Navigate to="/" />} />
-              <Route path="/tracking" element={user?.role === "user" ? <Tracking /> : <Navigate to="/" />} />
-              <Route path="/profile" element={user ? <Profile /> : <Navigate to="/" />} />
-              <Route path="/settings" element={user ? <Settings /> : <Navigate to="/" />} />
-              <Route path="/chat/:taskId" element={user ? <Chat /> : <Navigate to="/" />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TaskProvider>
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <AuthProvider>
+            <TaskProvider>
+              <Toaster />
+              <Sonner />
+              <AppContent />
+            </TaskProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

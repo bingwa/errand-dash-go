@@ -1,9 +1,10 @@
 
 import { useState } from "react";
-import { Bell, Shield, Globe, Moon, Sun, Smartphone, Eye, EyeOff } from "lucide-react";
+import { Bell, Shield, Globe, Moon, Sun, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Settings() {
   const [notifications, setNotifications] = useState({
@@ -20,25 +21,25 @@ export default function Settings() {
     activityStatus: true
   });
 
-  const [theme, setTheme] = useState("light");
+  const { theme, setTheme } = useTheme();
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 mobile-safe-area">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900 mobile-safe-area">
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-          <p className="text-gray-600">Manage your account preferences and app settings</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
+          <p className="text-gray-600 dark:text-gray-300">Manage your account preferences and app settings</p>
         </div>
 
         {/* Notifications */}
-        <Card className="mb-6 shadow-lg border-0">
+        <Card className="mb-6 shadow-lg border-0 dark:bg-gray-800">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 dark:text-white">
               <Bell size={20} />
               Notifications
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="dark:text-gray-300">
               Choose how you want to be notified about updates and activities
             </CardDescription>
           </CardHeader>
@@ -90,13 +91,13 @@ export default function Settings() {
         </Card>
 
         {/* Privacy & Security */}
-        <Card className="mb-6 shadow-lg border-0">
+        <Card className="mb-6 shadow-lg border-0 dark:bg-gray-800">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 dark:text-white">
               <Shield size={20} />
               Privacy & Security
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="dark:text-gray-300">
               Control your privacy settings and account security
             </CardDescription>
           </CardHeader>
@@ -141,21 +142,21 @@ export default function Settings() {
         </Card>
 
         {/* App Preferences */}
-        <Card className="mb-6 shadow-lg border-0">
+        <Card className="mb-6 shadow-lg border-0 dark:bg-gray-800">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 dark:text-white">
               <Smartphone size={20} />
               App Preferences
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="dark:text-gray-300">
               Customize your app experience
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Theme</p>
-                <p className="text-sm text-gray-500">Choose your preferred app theme</p>
+                <p className="font-medium dark:text-white">Theme</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Choose your preferred app theme</p>
               </div>
               <div className="flex gap-2">
                 <Button 
@@ -181,8 +182,8 @@ export default function Settings() {
             
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Language</p>
-                <p className="text-sm text-gray-500">Select your preferred language</p>
+                <p className="font-medium dark:text-white">Language</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Select your preferred language</p>
               </div>
               <Button variant="outline" size="sm" className="gap-1">
                 <Globe size={14} />
@@ -193,15 +194,15 @@ export default function Settings() {
         </Card>
 
         {/* Danger Zone */}
-        <Card className="shadow-lg border-0 border-l-4 border-l-red-500">
+        <Card className="shadow-lg border-0 border-l-4 border-l-red-500 dark:bg-gray-800">
           <CardHeader>
-            <CardTitle className="text-red-600">Danger Zone</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-red-600 dark:text-red-400">Danger Zone</CardTitle>
+            <CardDescription className="dark:text-gray-300">
               These actions cannot be undone
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full text-red-600 border-red-200 hover:bg-red-50">
+            <Button variant="outline" className="w-full text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950">
               Deactivate Account
             </Button>
             <Button variant="destructive" className="w-full">
