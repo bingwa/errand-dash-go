@@ -57,7 +57,7 @@ export default function App() {
             <Route path="/directions" element={user?.role === "errander" ? <ErranderDirections /> : <Navigate to="/" />} />
             <Route path="/wallet" element={user ? <WalletPage /> : <Navigate to="/" />} />
             <Route path="/tracking" element={user?.role === "user" ? <Tracking /> : <Navigate to="/" />} />
-            {/* Chat for active task, not global, implement later */}
+            {/* Chat only for active tasks between user and errander */}
             <Route path="/chat/:taskId" element={user ? <Chat /> : <Navigate to="/" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
