@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -12,6 +13,8 @@ import Tasks from "./pages/Tasks";
 import Chat from "./pages/Chat";
 import Tracking from "./pages/Tracking";
 import WalletPage from "./pages/Wallet";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
 import ErranderDirections from "./pages/ErranderDirections";
@@ -55,8 +58,10 @@ export default function App() {
             <Route path="/book" element={user?.role === "user" ? <BookErrand /> : <Navigate to="/" />} />
             <Route path="/tasks" element={user?.role === "errander" ? <Tasks /> : <Navigate to="/" />} />
             <Route path="/directions" element={user?.role === "errander" ? <ErranderDirections /> : <Navigate to="/" />} />
-            <Route path="/wallet" element={user ? <WalletPage /> : <Navigate to="/" />} />
+            <Route path="/wallet" element={user?.role === "errander" ? <WalletPage /> : <Navigate to="/" />} />
             <Route path="/tracking" element={user?.role === "user" ? <Tracking /> : <Navigate to="/" />} />
+            <Route path="/profile" element={user ? <Profile /> : <Navigate to="/" />} />
+            <Route path="/settings" element={user ? <Settings /> : <Navigate to="/" />} />
             {/* Chat only for active tasks between user and errander */}
             <Route path="/chat/:taskId" element={user ? <Chat /> : <Navigate to="/" />} />
             <Route path="*" element={<NotFound />} />
