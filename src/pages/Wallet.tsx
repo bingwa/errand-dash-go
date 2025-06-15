@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import WalletTransactionCard, { Transaction } from "@/components/WalletTransactionCard";
 import { Wallet } from "lucide-react";

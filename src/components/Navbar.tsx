@@ -1,42 +1,37 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Map, Wallet, Users, MessageCircle, LogOut, Home as HomeIcon, ClipboardCheck, Search, Package, User2 } from "lucide-react";
+import { Map, Wallet, Users, MessageCircle, LogOut, Home as HomeIcon, ClipboardCheck, Search, Package, User2, Directions } from "lucide-react";
 import ToggleRoleButton from "./ToggleRoleButton";
 import { cn } from "@/lib/utils";
 
+// Distinct sets for roles, and no icons for guest links
 const userLinks = [
-  { to: "/", label: "Home", icon: <HomeIcon size={18} className="inline ml-1 mb-[2px]" /> },
+  { to: "/dashboard", label: "Dashboard", icon: <HomeIcon size={18} className="inline ml-1 mb-[2px]" /> },
   { to: "/book", label: "Book Errand", icon: <ClipboardCheck size={18} className="inline ml-1 mb-[2px]" /> },
   { to: "/tracking", label: "Tracking", icon: <Search size={18} className="inline ml-1 mb-[2px]" /> },
-  { to: "/chat", label: "Chat", icon: <MessageCircle size={18} className="inline ml-1 mb-[2px]" /> },
   { to: "/wallet", label: "Wallet", icon: <Wallet size={18} className="inline ml-1 mb-[2px]" /> },
 ];
-
 const erranderLinks = [
-  { to: "/", label: "Home", icon: <HomeIcon size={18} className="inline ml-1 mb-[2px]" /> },
+  { to: "/dashboard", label: "Dashboard", icon: <HomeIcon size={18} className="inline ml-1 mb-[2px]" /> },
   { to: "/tasks", label: "My Jobs", icon: <Package size={18} className="inline ml-1 mb-[2px]" /> },
-  { to: "/tracking", label: "Tracking", icon: <Search size={18} className="inline ml-1 mb-[2px]" /> },
-  { to: "/chat", label: "Chat", icon: <MessageCircle size={18} className="inline ml-1 mb-[2px]" /> },
+  { to: "/directions", label: "Directions", icon: <Directions size={18} className="inline ml-1 mb-[2px]" /> },
   { to: "/wallet", label: "Wallet", icon: <Wallet size={18} className="inline ml-1 mb-[2px]" /> },
 ];
 
-const guestLinks = [
-  { to: "/", label: "Home" }
-];
-
-function getLinks(role, signedIn) {
-  if (!signedIn) return guestLinks;
+function getLinks(role: "errander" | "user", signedIn: boolean) {
+  if (!signedIn) return []; // No nav for not signed in
   if (role === "errander") return erranderLinks;
   return userLinks;
 }
 
-const Navbar = ({ signedIn, onLogout }) => {
+const Navbar = ({ signedIn, role, onLogout }) => {
   const location = useLocation();
-  const role = localStorage.getItem("role") === "errander" ? "errander" : "customer";
+  if (!signedIn) return null; // Hide navbar if not logged in
+
   const links = getLinks(role, signedIn);
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-background shadow sticky top-0 z-30 border-b border-accent/40">
-      <Link to="/" className="flex items-center gap-2 text-primary font-bold text-xl tracking-tight hover:opacity-80">
+      <Link to="/dashboard" className="flex items-center gap-2 text-primary font-bold text-xl tracking-tight hover:opacity-80">
         <Map className="w-7 h-7 animate-pulse" /> <span className="text-emerald-700">ErrandDash Go</span>
       </Link>
       <div className="flex gap-2 items-center ml-8">
@@ -54,12 +49,10 @@ const Navbar = ({ signedIn, onLogout }) => {
         ))}
       </div>
       <div className="flex gap-2 items-center">
-        {signedIn && (
-          <button
-            className="text-primary bg-background/70 border border-primary/70 px-3 py-1 rounded-lg hover:bg-primary hover:text-primary-foreground flex items-center gap-2 transition-colors"
-            onClick={onLogout}
-          ><LogOut size={18} />Log Out</button>
-        )}
+        <button
+          className="text-primary bg-background/70 border border-primary/70 px-3 py-1 rounded-lg hover:bg-primary hover:text-primary-foreground flex items-center gap-2 transition-colors"
+          onClick={onLogout}
+        ><LogOut size={18} />Log Out</button>
         <ToggleRoleButton />
       </div>
     </nav>

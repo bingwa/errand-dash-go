@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -15,6 +14,7 @@ import Tracking from "./pages/Tracking";
 import WalletPage from "./pages/Wallet";
 import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
+import ErranderDirections from "./pages/ErranderDirections";
 
 const queryClient = new QueryClient();
 
@@ -41,15 +41,24 @@ export default function App() {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Navbar signedIn={!!user} onLogout={handleLogout} />
+          {/* Navbar only shown when logged in */}
+          <Navbar signedIn={!!user} role={user?.role} onLogout={handleLogout} />
           <Routes>
             <Route path="/" element={<Home onSignIn={handleSignIn} />} />
-            <Route path="/dashboard" element={<AuthRoutes authed={!!user} role={user?.role} />} />
+            <Route path="/dashboard" element={
+              user?.role === "user"
+                ? <UserDashboard />
+                : user?.role === "errander"
+                ? <ErranderDashboard />
+                : <Navigate to="/" />
+            } />
             <Route path="/book" element={user?.role === "user" ? <BookErrand /> : <Navigate to="/" />} />
             <Route path="/tasks" element={user?.role === "errander" ? <Tasks /> : <Navigate to="/" />} />
-            <Route path="/chat" element={user ? <Chat /> : <Navigate to="/" />} />
-            <Route path="/tracking" element={user ? <Tracking /> : <Navigate to="/" />} />
+            <Route path="/directions" element={user?.role === "errander" ? <ErranderDirections /> : <Navigate to="/" />} />
             <Route path="/wallet" element={user ? <WalletPage /> : <Navigate to="/" />} />
+            <Route path="/tracking" element={user?.role === "user" ? <Tracking /> : <Navigate to="/" />} />
+            {/* Chat for active task, not global, implement later */}
+            <Route path="/chat/:taskId" element={user ? <Chat /> : <Navigate to="/" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

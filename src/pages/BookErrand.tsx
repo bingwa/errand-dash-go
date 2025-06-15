@@ -10,7 +10,8 @@ const SERVICE_CONFIG = {
     icon: <ShoppingBag className="w-6 h-6 mr-1 inline text-primary"/>,
     label: "Pick & Deliver Groceries",
     fields: [
-      { key: "pickup", label: "Pickup Location", type: "text", placeholder: "e.g. Carrefour, Sarit Centre" },
+      { key: "userLocation", label: "Your Current Location", type: "text", placeholder: "e.g. Home, Kileleshwa" },
+      { key: "pickup", label: "Store/Pickup Location", type: "text", placeholder: "e.g. Carrefour, Sarit Centre" },
       { key: "drop", label: "Delivery Location", type: "text", placeholder: "e.g. Home, Office Address" },
       { key: "notes", label: "Grocery List / Notes", type: "textarea", placeholder: "Milk, eggs, etc." }
     ]
@@ -19,6 +20,7 @@ const SERVICE_CONFIG = {
     icon: <Package className="w-6 h-6 mr-1 inline text-primary"/>,
     label: "Deliver a Package",
     fields: [
+      { key: "userLocation", label: "Your Current Location", type: "text", placeholder: "e.g. Office, Ngong Road" },
       { key: "pickup", label: "Pickup Point", type: "text", placeholder: "e.g. UPS, CBD" },
       { key: "recipient", label: "Recipient Name", type: "text", placeholder: "e.g. Jane Doe" },
       { key: "drop", label: "Dropoff Location", type: "text", placeholder: "e.g. Elgon Offices" },
@@ -29,7 +31,8 @@ const SERVICE_CONFIG = {
     icon: <Sparkles className="w-6 h-6 mr-1 inline text-primary"/>,
     label: "In-Home Cleaning",
     fields: [
-      { key: "location", label: "Service Location", type: "text", placeholder: "e.g. Riverside Drive Apt 12" },
+      { key: "userLocation", label: "Your Current Location", type: "text", placeholder: "e.g. Office or Apartment" },
+      { key: "location", label: "Service (Task) Location", type: "text", placeholder: "e.g. Riverside Drive Apt 12" },
       { key: "rooms", label: "Rooms to Clean", type: "text", placeholder: "e.g. 2 Bedroom, 1 Living" },
       { key: "notes", label: "Additional Notes", type: "textarea", placeholder: "Leave balcony for last" }
     ]
@@ -38,6 +41,7 @@ const SERVICE_CONFIG = {
     icon: <ListTodo className="w-6 h-6 mr-1 inline text-primary"/>,
     label: "Shopping Delivery",
     fields: [
+      { key: "userLocation", label: "Your Current Location", type: "text", placeholder: "e.g. Home" },
       { key: "pickup", label: "Store/Market", type: "text", placeholder: "e.g. Two Rivers Mall" },
       { key: "drop", label: "Delivery Destination", type: "text", placeholder: "e.g. Argwings Apartments" },
       { key: "items", label: "Shopping List", type: "textarea", placeholder: "Shoes, jackets, etc." }
@@ -47,6 +51,7 @@ const SERVICE_CONFIG = {
     icon: <User2 className="w-6 h-6 mr-1 inline text-primary"/>,
     label: "Other Custom Task",
     fields: [
+      { key: "userLocation", label: "Your Current Location", type: "text", placeholder: "e.g. CBD, Home" },
       { key: "location", label: "Task Location", type: "text", placeholder: "e.g. specific place" },
       { key: "description", label: "Task Description", type: "textarea", placeholder: "What do you need done?" }
     ]
