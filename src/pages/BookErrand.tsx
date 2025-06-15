@@ -5,9 +5,9 @@ import MapboxTokenPrompt from "@/components/MapboxTokenPrompt";
 import { Map as MapIcon } from "lucide-react";
 
 const MOCK_ERRANDERS = [
-  { id: "1", name: "James (Groceries)", coords: [36.825, -1.287], avatarUrl: "" },
-  { id: "2", name: "Winnie (Packages)", coords: [36.818, -1.295], avatarUrl: "" },
-  { id: "3", name: "Alex (Cleaner)", coords: [36.832, -1.291], avatarUrl: "" }
+  { id: "1", name: "James (Groceries)", coords: [36.825, -1.287] as [number, number], avatarUrl: "" },
+  { id: "2", name: "Winnie (Packages)", coords: [36.818, -1.295] as [number, number], avatarUrl: "" },
+  { id: "3", name: "Alex (Cleaner)", coords: [36.832, -1.291] as [number, number], avatarUrl: "" }
 ];
 
 const BookErrand = () => {
@@ -92,3 +92,4 @@ const BookErrand = () => {
 };
 
 export default BookErrand;
+
