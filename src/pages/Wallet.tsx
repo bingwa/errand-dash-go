@@ -54,69 +54,68 @@ const WalletPage = () => {
           KSh {balance.toLocaleString()}
         </div>
         
-        {role === "errander" && (
-          <Card className="w-full mt-3 bg-muted/60 dark:bg-gray-800/60 rounded-xl shadow-inner border">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <ArrowDown className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                Withdraw to Mpesa
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="font-semibold block text-muted-foreground mb-1">
-                  <Smartphone className="w-4 h-4 inline mr-1" />
-                  Mpesa Number
-                </label>
-                <input
-                  value={mpesa}
-                  onChange={e => setMpesa(e.target.value)}
-                  type="tel"
-                  placeholder="e.g. 0712345678"
-                  className="px-3 py-2 border rounded w-full bg-background dark:bg-gray-700 dark:border-gray-600"
-                  maxLength={13}
-                  disabled={isProcessing}
-                />
-              </div>
-              
-              <div>
-                <label className="font-semibold block text-muted-foreground mb-1">
-                  Withdraw Amount (KSh)
-                </label>
-                <input
-                  value={amount}
-                  onChange={e => setAmount(e.target.value.replace(/\D/, ""))}
-                  type="number"
-                  placeholder="Min 50"
-                  className="px-3 py-2 border rounded w-full bg-background dark:bg-gray-700 dark:border-gray-600"
-                  min={50}
-                  max={balance}
-                  disabled={isProcessing}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Available: KSh {balance.toLocaleString()}
-                </p>
-              </div>
-              
-              <Button
-                className="w-full bg-primary text-primary-foreground rounded py-2 font-semibold mt-1 transition hover:bg-primary/80"
-                onClick={withdraw}
-                disabled={!mpesa || !amount || Number(amount) < 50 || Number(amount) > balance || isProcessing}
-              >
-                {isProcessing ? "Processing Withdrawal..." : "Withdraw to Mpesa"}
-              </Button>
-              
-              {err && <div className="text-red-600 dark:text-red-400 font-medium">{err}</div>}
-              
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                <p className="text-xs text-blue-700 dark:text-blue-300 flex items-center gap-1">
-                  <Smartphone className="w-3 h-3" />
-                  You'll receive an SMS confirmation once the withdrawal is processed
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Show Mpesa withdrawal for both customers and erranders */}
+        <Card className="w-full mt-3 bg-muted/60 dark:bg-gray-800/60 rounded-xl shadow-inner border">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <ArrowDown className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              Withdraw to Mpesa
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="font-semibold block text-muted-foreground mb-1">
+                <Smartphone className="w-4 h-4 inline mr-1" />
+                Mpesa Number
+              </label>
+              <input
+                value={mpesa}
+                onChange={e => setMpesa(e.target.value)}
+                type="tel"
+                placeholder="e.g. 0712345678"
+                className="px-3 py-2 border rounded w-full bg-background dark:bg-gray-700 dark:border-gray-600"
+                maxLength={13}
+                disabled={isProcessing}
+              />
+            </div>
+            
+            <div>
+              <label className="font-semibold block text-muted-foreground mb-1">
+                Withdraw Amount (KSh)
+              </label>
+              <input
+                value={amount}
+                onChange={e => setAmount(e.target.value.replace(/\D/, ""))}
+                type="number"
+                placeholder="Min 50"
+                className="px-3 py-2 border rounded w-full bg-background dark:bg-gray-700 dark:border-gray-600"
+                min={50}
+                max={balance}
+                disabled={isProcessing}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Available: KSh {balance.toLocaleString()}
+              </p>
+            </div>
+            
+            <Button
+              className="w-full bg-primary text-primary-foreground rounded py-2 font-semibold mt-1 transition hover:bg-primary/80"
+              onClick={withdraw}
+              disabled={!mpesa || !amount || Number(amount) < 50 || Number(amount) > balance || isProcessing}
+            >
+              {isProcessing ? "Processing Withdrawal..." : "Withdraw to Mpesa"}
+            </Button>
+            
+            {err && <div className="text-red-600 dark:text-red-400 font-medium">{err}</div>}
+            
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+              <p className="text-xs text-blue-700 dark:text-blue-300 flex items-center gap-1">
+                <Smartphone className="w-3 h-3" />
+                You'll receive an SMS confirmation once the withdrawal is processed
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </Card>
       
       <h3 className="font-semibold mb-4 pl-1 text-base text-muted-foreground">Recent Transactions</h3>
