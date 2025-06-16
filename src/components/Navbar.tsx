@@ -1,7 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Map, Wallet, LogOut, Home as HomeIcon, ClipboardCheck, Search, Package, Navigation, User, Settings, ChevronDown } from "lucide-react";
-import ToggleRoleButton from "./ToggleRoleButton";
 import ThemeToggle from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 import {
@@ -63,10 +62,6 @@ const Navbar = ({ signedIn, role, onLogout }) => {
       {/* Profile Dropdown */}
       <div className="flex gap-2 items-center">
         <ThemeToggle />
-        
-        <div className="hidden sm:block">
-          <ToggleRoleButton />
-        </div>
         
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
