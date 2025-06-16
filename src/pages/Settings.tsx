@@ -1,215 +1,204 @@
 
 import { useState } from "react";
-import { Bell, Shield, Globe, Moon, Sun, Smartphone } from "lucide-react";
+import { User, Mail, Phone, MapPin, Bell, Shield, Palette, Globe, HelpCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import ThemeToggle from "@/components/ThemeToggle";
+import PushNotificationSettings from "@/components/PushNotificationSettings";
 
 export default function Settings() {
-  const [notifications, setNotifications] = useState({
-    push: true,
-    email: true,
-    sms: false,
-    orderUpdates: true,
-    marketing: false
-  });
+  const { user, userProfile, signOut } = useAuth();
+  const { theme } = useTheme();
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
+  const [location, setLocation] = useState("auto");
+  const [language, setLanguage] = useState("en");
 
-  const [privacy, setPrivacy] = useState({
-    profileVisible: true,
-    locationSharing: true,
-    activityStatus: true
-  });
-
-  const { theme, setTheme } = useTheme();
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900 mobile-safe-area">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 mobile-safe-area">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
-          <p className="text-gray-600 dark:text-gray-300">Manage your account preferences and app settings</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Manage your account preferences</p>
+          </div>
+          <Badge variant="outline" className="capitalize">
+            {userProfile?.role || 'user'}
+          </Badge>
         </div>
 
-        {/* Notifications */}
-        <Card className="mb-6 shadow-lg border-0 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 dark:text-white">
-              <Bell size={20} />
-              Notifications
-            </CardTitle>
-            <CardDescription className="dark:text-gray-300">
-              Choose how you want to be notified about updates and activities
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Push Notifications</p>
-                <p className="text-sm text-gray-500">Get notified about new orders and updates</p>
+        <div className="grid gap-6">
+          {/* Account Information */}
+          <Card className="shadow-lg border-0 dark:bg-slate-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <User className="w-5 h-5" />
+                Account Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                  <p className="text-gray-900 dark:text-white">{userProfile?.full_name || 'Not set'}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                  <p className="text-gray-900 dark:text-white">{user?.email}</p>
+                </div>
               </div>
-              <Switch 
-                checked={notifications.push}
-                onCheckedChange={(checked) => setNotifications({...notifications, push: checked})}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Email Notifications</p>
-                <p className="text-sm text-gray-500">Receive updates via email</p>
-              </div>
-              <Switch 
-                checked={notifications.email}
-                onCheckedChange={(checked) => setNotifications({...notifications, email: checked})}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">SMS Notifications</p>
-                <p className="text-sm text-gray-500">Get text messages for urgent updates</p>
-              </div>
-              <Switch 
-                checked={notifications.sms}
-                onCheckedChange={(checked) => setNotifications({...notifications, sms: checked})}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Order Updates</p>
-                <p className="text-sm text-gray-500">Track your errands in real-time</p>
-              </div>
-              <Switch 
-                checked={notifications.orderUpdates}
-                onCheckedChange={(checked) => setNotifications({...notifications, orderUpdates: checked})}
-              />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Privacy & Security */}
-        <Card className="mb-6 shadow-lg border-0 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 dark:text-white">
-              <Shield size={20} />
-              Privacy & Security
-            </CardTitle>
-            <CardDescription className="dark:text-gray-300">
-              Control your privacy settings and account security
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Profile Visibility</p>
-                <p className="text-sm text-gray-500">Make your profile visible to other users</p>
-              </div>
-              <Switch 
-                checked={privacy.profileVisible}
-                onCheckedChange={(checked) => setPrivacy({...privacy, profileVisible: checked})}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Location Sharing</p>
-                <p className="text-sm text-gray-500">Share your location during active tasks</p>
-              </div>
-              <Switch 
-                checked={privacy.locationSharing}
-                onCheckedChange={(checked) => setPrivacy({...privacy, locationSharing: checked})}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Activity Status</p>
-                <p className="text-sm text-gray-500">Show when you're online and available</p>
-              </div>
-              <Switch 
-                checked={privacy.activityStatus}
-                onCheckedChange={(checked) => setPrivacy({...privacy, activityStatus: checked})}
-              />
-            </div>
-            
-            <Button variant="outline" className="w-full mt-4">
-              Change Password
-            </Button>
-          </CardContent>
-        </Card>
+          {/* Push Notifications */}
+          <PushNotificationSettings />
 
-        {/* App Preferences */}
-        <Card className="mb-6 shadow-lg border-0 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 dark:text-white">
-              <Smartphone size={20} />
-              App Preferences
-            </CardTitle>
-            <CardDescription className="dark:text-gray-300">
-              Customize your app experience
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium dark:text-white">Theme</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Choose your preferred app theme</p>
+          {/* Notification Preferences */}
+          <Card className="shadow-lg border-0 dark:bg-slate-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <Bell className="w-5 h-5" />
+                Notification Preferences
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Email Notifications</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Receive updates via email</p>
+                </div>
+                <Switch checked={emailNotifications} onCheckedChange={setEmailNotifications} />
               </div>
-              <div className="flex gap-2">
-                <Button 
-                  variant={theme === "light" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setTheme("light")}
-                  className="gap-1"
-                >
-                  <Sun size={14} />
-                  Light
-                </Button>
-                <Button 
-                  variant={theme === "dark" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setTheme("dark")}
-                  className="gap-1"
-                >
-                  <Moon size={14} />
-                  Dark
-                </Button>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">SMS Notifications</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Get text message alerts</p>
+                </div>
+                <Switch checked={smsNotifications} onCheckedChange={setSmsNotifications} />
               </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium dark:text-white">Language</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Select your preferred language</p>
+            </CardContent>
+          </Card>
+
+          {/* Privacy & Security */}
+          <Card className="shadow-lg border-0 dark:bg-slate-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <Shield className="w-5 h-5" />
+                Privacy & Security
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Location Sharing</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Share location for better service</p>
+                </div>
+                <Select value={location} onValueChange={setLocation}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Auto</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="off">Off</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Button variant="outline" size="sm" className="gap-1">
-                <Globe size={14} />
-                English
+              
+              <Button variant="outline" className="w-full sm:w-auto">
+                Change Password
               </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Danger Zone */}
-        <Card className="shadow-lg border-0 border-l-4 border-l-red-500 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-red-600 dark:text-red-400">Danger Zone</CardTitle>
-            <CardDescription className="dark:text-gray-300">
-              These actions cannot be undone
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950">
-              Deactivate Account
-            </Button>
-            <Button variant="destructive" className="w-full">
-              Delete Account
-            </Button>
-          </CardContent>
-        </Card>
+          {/* App Preferences */}
+          <Card className="shadow-lg border-0 dark:bg-slate-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <Palette className="w-5 h-5" />
+                App Preferences
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Theme</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Choose your preferred theme</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">{theme}</span>
+                  <ThemeToggle />
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Language</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Select your language</p>
+                </div>
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="sw">Swahili</SelectItem>
+                    <SelectItem value="fr">French</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Support & Help */}
+          <Card className="shadow-lg border-0 dark:bg-slate-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <HelpCircle className="w-5 h-5" />
+                Support & Help
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="ghost" className="w-full justify-start">
+                Help Center
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                Contact Support
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                Privacy Policy
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                Terms of Service
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Logout */}
+          <Card className="shadow-lg border-0 dark:bg-slate-800">
+            <CardContent className="p-6">
+              <Button 
+                onClick={handleLogout}
+                variant="destructive" 
+                className="w-full gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </main>
   );

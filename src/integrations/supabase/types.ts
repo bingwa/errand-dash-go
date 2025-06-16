@@ -17,6 +17,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          push_token: string | null
           role: string
           updated_at: string | null
           vehicle_info: string | null
@@ -28,6 +29,7 @@ export type Database = {
           full_name?: string | null
           id: string
           phone?: string | null
+          push_token?: string | null
           role?: string
           updated_at?: string | null
           vehicle_info?: string | null
@@ -39,6 +41,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          push_token?: string | null
           role?: string
           updated_at?: string | null
           vehicle_info?: string | null
