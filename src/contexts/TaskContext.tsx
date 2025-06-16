@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export interface Task {
   id: string;
   type: 'groceries' | 'packages' | 'cleaning' | 'shopping' | 'custom';
-  status: 'pending' | 'assigned' | 'en-route' | 'in-progress' | 'completed';
+  status: 'pending' | 'assigned' | 'en-route' | 'in-progress' | 'completed' | 'checkout';
   title: string;
   description: string;
   userLocation: string;
@@ -66,6 +66,8 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Simulate progress updates
     setTimeout(() => updateTaskStatus(newTask.id, 'en-route'), 8000);
     setTimeout(() => updateTaskStatus(newTask.id, 'in-progress'), 15000);
+    setTimeout(() => updateTaskStatus(newTask.id, 'completed'), 25000);
+    setTimeout(() => updateTaskStatus(newTask.id, 'checkout'), 26000);
   };
 
   const updateTaskStatus = (taskId: string, status: Task['status']) => {
@@ -79,7 +81,7 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const activeTask = tasks.find(task => 
-    ['pending', 'assigned', 'en-route', 'in-progress'].includes(task.status)
+    ['pending', 'assigned', 'en-route', 'in-progress', 'completed', 'checkout'].includes(task.status)
   ) || null;
 
   return (

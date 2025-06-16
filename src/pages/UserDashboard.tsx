@@ -11,33 +11,33 @@ export default function UserDashboard() {
   const completedTasks = tasks.filter(task => task.status === 'completed');
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 mobile-safe-area">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 mobile-safe-area">
       <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
         {/* Hero Section */}
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
             Welcome Back! 👋
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
             Need something done? Book an errand and let our trusted erranders handle it for you.
           </p>
         </div>
 
         {/* Active Task Alert */}
         {activeTask && (
-          <Card className="mb-8 border-l-4 border-l-emerald-500 bg-emerald-50/50">
+          <Card className="mb-8 border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <Clock className="w-4 h-4 text-emerald-600" />
-                    <span className="font-semibold text-emerald-800">Active Task</span>
-                    <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700">
+                    <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="font-semibold text-emerald-800 dark:text-emerald-200">Active Task</span>
+                    <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700 dark:border-emerald-600 dark:text-emerald-300">
                       {activeTask.status.replace('-', ' ')}
                     </Badge>
                   </div>
-                  <p className="text-sm text-emerald-700">{activeTask.title}</p>
-                  <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1">
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">{activeTask.title}</p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-1">
                     <MapPin className="w-3 h-3" />
                     {activeTask.taskLocation}
                   </p>
@@ -81,50 +81,50 @@ export default function UserDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12 px-4 sm:px-0">
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-gray-500">Active Tasks</h4>
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Tasks</h4>
               <Calendar className="w-5 h-5 text-blue-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{activeTask ? 1 : 0}</p>
-            <p className="text-sm text-gray-600">In progress</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{activeTask ? 1 : 0}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">In progress</p>
           </div>
 
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-gray-500">Completed</h4>
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Completed</h4>
               <ClipboardCheck className="w-5 h-5 text-emerald-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{completedTasks.length}</p>
-            <p className="text-sm text-gray-600">Total tasks</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{completedTasks.length}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Total tasks</p>
           </div>
 
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 sm:col-span-2 lg:col-span-1">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-gray-500">Average Rating</h4>
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Average Rating</h4>
               <div className="text-yellow-400">⭐</div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">4.8</p>
-            <p className="text-sm text-gray-600">From erranders</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">4.8</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">From erranders</p>
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 mx-4 sm:mx-0">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Recent Activity</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700 mx-4 sm:mx-0">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Recent Activity</h3>
           <div className="space-y-3">
             {tasks.length === 0 ? (
               <div className="text-center py-6">
-                <p className="text-gray-500">No tasks yet. Book your first errand!</p>
+                <p className="text-gray-500 dark:text-gray-400">No tasks yet. Book your first errand!</p>
               </div>
             ) : (
               tasks.slice(0, 3).map((task) => (
-                <div key={task.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div key={task.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                     task.status === 'completed' ? 'bg-emerald-500' : 
                     task.status === 'in-progress' ? 'bg-blue-500' : 'bg-amber-500'
                   }`}></div>
-                  <span className="text-sm text-gray-600 flex-1">{task.title}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300 flex-1">{task.title}</span>
                   <Badge variant="outline" className="text-xs">
                     {task.status}
                   </Badge>
