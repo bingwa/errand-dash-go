@@ -7,7 +7,7 @@ import { useTask } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, DollarSign, RefreshCw } from "lucide-react";
+import { MapPin, Clock, DollarSign, RefreshCw, Bell } from "lucide-react";
 
 const MOCK_CUSTOMER_JOBS: Job[] = [
   {
@@ -46,7 +46,7 @@ const Tasks = () => {
   const [role] = useState((localStorage.getItem("role") as "customer" | "errander") || "customer");
   const [tabs] = useState(role === "customer" ? ["Active", "Completed"] : ["Available", "Active", "Completed"]);
   const [refreshing, setRefreshing] = useState(false);
-  const { availableTasks, erranderActiveTask, acceptTask } = useTask();
+  const { availableTasks, erranderActiveTask, acceptTask, newTaskNotification, clearNewTaskNotification } = useTask();
 
   function getJobs(tab: string) {
     if (role === "customer") {
@@ -79,6 +79,7 @@ const Tasks = () => {
 
   const handleAcceptTask = (taskId: string) => {
     acceptTask(taskId);
+    clearNewTaskNotification();
     alert("Task accepted successfully! Check the Active tab to see your task.");
   };
 
@@ -88,6 +89,48 @@ const Tasks = () => {
 
   return (
     <main className="max-w-5xl mx-auto px-2 pt-10">
+      {/* Live Notification for new tasks */}
+      {role === "errander" && newTaskNotification && (
+        <Card className="mb-6 border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-900/20 animate-pulse">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <span className="font-semibold text-blue-800 dark:text-blue-200">🔔 New Task Alert!</span>
+              </div>
+              <Button 
+                size="sm" 
+                onClick={() => clearNewTaskNotification()}
+                variant="ghost"
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
+              >
+                Dismiss
+              </Button>
+            </div>
+            <div className="mt-2">
+              <p className="font-medium text-blue-900 dark:text-blue-100">{newTaskNotification.title}</p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">{newTaskNotification.description}</p>
+              <div className="flex items-center gap-4 mt-2 text-sm">
+                <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                  <MapPin className="w-3 h-3" />
+                  {newTaskNotification.taskLocation}
+                </span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                  KSh {newTaskNotification.amount}
+                </span>
+              </div>
+              <Button 
+                size="sm" 
+                className="mt-3 bg-blue-600 hover:bg-blue-700"
+                onClick={() => handleAcceptTask(newTaskNotification.id)}
+              >
+                Accept Task Now
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{role === "customer" ? "Your Tasks" : "Errander Job Board"}</h1>
         {role === "errander" && (
@@ -118,6 +161,11 @@ const Tasks = () => {
               }
             >
               {tab}
+              {tab === "Available" && role === "errander" && (
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  {availableTasks.length}
+                </Badge>
+              )}
             </Tab>
           ))}
         </Tab.List>
@@ -130,20 +178,25 @@ const Tasks = () => {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                     <Clock className="w-4 h-4" />
                     Live updates • {availableTasks.length} tasks available
+                    <Badge variant="outline" className="ml-2">
+                      Auto-refresh enabled
+                    </Badge>
                   </div>
                   
                   {availableTasks.length === 0 ? (
                     <div className="p-12 text-muted-foreground text-center w-full">
-                      No tasks available at the moment. Check back soon!
+                      <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                      <p className="text-lg mb-2">No tasks available at the moment</p>
+                      <p className="text-sm">We'll notify you when new tasks are posted!</p>
                     </div>
                   ) : (
                     <div className="grid gap-4">
                       {availableTasks.map((task) => (
-                        <Card key={task.id} className="hover:shadow-md transition-shadow">
+                        <Card key={task.id} className="hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700">
                           <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
-                                <CardTitle className="text-lg mb-1">{task.title}</CardTitle>
+                                <CardTitle className="text-lg mb-1 text-gray-900 dark:text-white">{task.title}</CardTitle>
                                 <Badge variant="outline" className="mb-2">
                                   {task.type}
                                 </Badge>
@@ -162,13 +215,17 @@ const Tasks = () => {
                               <div className="flex items-center gap-2 text-sm">
                                 <MapPin className="w-4 h-4 text-muted-foreground" />
                                 <span className="text-muted-foreground">From:</span>
-                                <span>{task.userLocation}</span>
+                                <span className="text-gray-900 dark:text-white">{task.userLocation}</span>
                               </div>
                               <div className="flex items-center gap-2 text-sm">
                                 <MapPin className="w-4 h-4 text-muted-foreground" />
                                 <span className="text-muted-foreground">To:</span>
-                                <span>{task.taskLocation}</span>
+                                <span className="text-gray-900 dark:text-white">{task.taskLocation}</span>
                               </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                              <Clock className="w-3 h-3" />
+                              Posted: {new Date(task.createdAt).toLocaleString()}
                             </div>
                             <Button 
                               onClick={() => handleAcceptTask(task.id)}

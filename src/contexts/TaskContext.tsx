@@ -29,6 +29,8 @@ interface TaskContextType {
   updateTaskStatus: (taskId: string, status: Task['status']) => void;
   acceptTask: (taskId: string) => void;
   getTaskById: (taskId: string) => Task | undefined;
+  newTaskNotification: Task | null;
+  clearNewTaskNotification: () => void;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -70,10 +72,51 @@ const MOCK_AVAILABLE_TASKS: Task[] = [
   }
 ];
 
+// Default erranders pool for assignment
+const DEFAULT_ERRANDERS = [
+  {
+    id: 'errander-1',
+    name: 'James Mwangi',
+    phone: '+254 712 345 678',
+    rating: 4.8
+  },
+  {
+    id: 'errander-2',
+    name: 'Sarah Wanjiku',
+    phone: '+254 723 456 789',
+    rating: 4.9
+  },
+  {
+    id: 'errander-3',
+    name: 'Peter Kimani',
+    phone: '+254 734 567 890',
+    rating: 4.7
+  },
+  {
+    id: 'errander-4',
+    name: 'Grace Achieng',
+    phone: '+254 745 678 901',
+    rating: 4.6
+  },
+  {
+    id: 'errander-5',
+    name: 'David Mutua',
+    phone: '+254 756 789 012',
+    rating: 4.8
+  },
+  {
+    id: 'errander-6',
+    name: 'Mary Njeri',
+    phone: '+254 767 890 123',
+    rating: 4.9
+  }
+];
+
 export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [availableTasks, setAvailableTasks] = useState<Task[]>(MOCK_AVAILABLE_TASKS);
   const [erranderActiveTask, setErranderActiveTask] = useState<Task | null>(null);
+  const [newTaskNotification, setNewTaskNotification] = useState<Task | null>(null);
 
   // Simulate live updates for available tasks
   useEffect(() => {
@@ -93,11 +136,51 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
         
         setAvailableTasks(prev => [newTask, ...prev.slice(0, 9)]); // Keep only 10 latest tasks
+        
+        // Show notification for erranders
+        setNewTaskNotification(newTask);
+        
+        // Auto-clear notification after 5 seconds
+        setTimeout(() => {
+          setNewTaskNotification(null);
+        }, 5000);
       }
     }, 30000);
 
     return () => clearInterval(interval);
   }, []);
+
+  // Listen for storage events to sync across tabs/devices
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'errandash-tasks') {
+        const updatedTasks = JSON.parse(e.newValue || '[]');
+        setTasks(updatedTasks);
+      } else if (e.key === 'errandash-available-tasks') {
+        const updatedAvailableTasks = JSON.parse(e.newValue || '[]');
+        setAvailableTasks(updatedAvailableTasks);
+      } else if (e.key === 'errandash-errander-active') {
+        const updatedErranderTask = JSON.parse(e.newValue || 'null');
+        setErranderActiveTask(updatedErranderTask);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Sync tasks to localStorage for cross-tab communication
+  useEffect(() => {
+    localStorage.setItem('errandash-tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem('errandash-available-tasks', JSON.stringify(availableTasks));
+  }, [availableTasks]);
+
+  useEffect(() => {
+    localStorage.setItem('errandash-errander-active', JSON.stringify(erranderActiveTask));
+  }, [erranderActiveTask]);
 
   const createTask = (taskData: Omit<Task, 'id' | 'status' | 'createdAt'>) => {
     const newTask: Task = {
@@ -109,24 +192,38 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     setTasks(prev => [newTask, ...prev]);
     
-    // Simulate task assignment after 3 seconds
+    // Add to available tasks for erranders immediately
+    setAvailableTasks(prev => [newTask, ...prev]);
+    
+    // Show live notification to erranders
+    setNewTaskNotification(newTask);
+    
+    // Auto-clear notification after 5 seconds
     setTimeout(() => {
+      setNewTaskNotification(null);
+    }, 5000);
+    
+    // Simulate task assignment after 3 seconds if not accepted by errander
+    setTimeout(() => {
+      const randomErrander = DEFAULT_ERRANDERS[Math.floor(Math.random() * DEFAULT_ERRANDERS.length)];
       updateTaskStatus(newTask.id, 'assigned');
+      
       // Add mock errander
       setTasks(prev => prev.map(task => 
         task.id === newTask.id 
           ? {
               ...task,
               assignedErrander: {
-                id: 'errander-1',
-                name: 'James Mwangi',
-                phone: '+254 712 345 678',
-                rating: 4.8
+                ...randomErrander,
+                id: randomErrander.id
               },
               estimatedTime: '25-35 mins'
             }
           : task
       ));
+      
+      // Remove from available tasks if auto-assigned
+      setAvailableTasks(prev => prev.filter(task => task.id !== newTask.id));
     }, 3000);
 
     // Simulate progress updates
@@ -157,6 +254,16 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Set as errander's active task
       setErranderActiveTask(acceptedTask);
       
+      // Update the main tasks list if this task exists there
+      setTasks(prev => prev.map(task => 
+        task.id === taskId ? acceptedTask : task
+      ));
+      
+      // Clear notification if this was the notified task
+      if (newTaskNotification?.id === taskId) {
+        setNewTaskNotification(null);
+      }
+      
       // Simulate task progress for accepted task
       setTimeout(() => {
         setErranderActiveTask(prev => prev ? { ...prev, status: 'en-route' } : null);
@@ -183,6 +290,10 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return tasks.find(task => task.id === taskId);
   };
 
+  const clearNewTaskNotification = () => {
+    setNewTaskNotification(null);
+  };
+
   const activeTask = tasks.find(task => 
     ['pending', 'assigned', 'en-route', 'in-progress', 'completed', 'checkout'].includes(task.status)
   ) || null;
@@ -196,7 +307,9 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       createTask,
       updateTaskStatus,
       acceptTask,
-      getTaskById
+      getTaskById,
+      newTaskNotification,
+      clearNewTaskNotification
     }}>
       {children}
     </TaskContext.Provider>
