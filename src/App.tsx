@@ -41,11 +41,7 @@ function AppContent() {
 
   return (
     <BrowserRouter>
-      <Navbar 
-        signedIn={!!user} 
-        role={userProfile?.role} 
-        onLogout={handleLogout} 
-      />
+      <Navbar />
       <Routes>
         <Route path="/" element={!user ? <Home /> : <Navigate to="/dashboard" />} />
         <Route path="/auth" element={!user ? <Auth /> : <Navigate to="/dashboard" />} />

@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { ThemeToggle } from "./ThemeToggle";
+import ThemeToggle from "./ThemeToggle";
 import Logo from "./Logo";
 
 export default function Navbar() {
