@@ -5,9 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import MapComponent from "@/components/Map";
+import { useEffect } from "react";
 
 export default function ErranderDirections() {
   const { erranderActiveTask, updateTaskStatus } = useTask();
+
+  // Debug logging
+  useEffect(() => {
+    console.log("ErranderDirections - Current active task:", erranderActiveTask);
+  }, [erranderActiveTask]);
 
   const handleUpdateStatus = () => {
     if (!erranderActiveTask) return;
@@ -48,7 +54,7 @@ export default function ErranderDirections() {
 
   if (!erranderActiveTask) {
     return (
-      <main className="max-w-lg mx-auto px-4 py-8 animate-fade-in">
+      <main className="max-w-lg mx-auto px-4 py-8 animate-fade-in mobile-safe-area">
         <h1 className="text-2xl font-bold mb-5 flex gap-2 items-center text-primary">
           <Map /> Directions to Task
         </h1>
@@ -56,7 +62,7 @@ export default function ErranderDirections() {
           <Navigation className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Active Task</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Accept a task to view live navigation and directions!
+            Accept a task from the Tasks page to view live navigation and directions!
           </p>
           <Button asChild>
             <a href="/tasks">Browse Available Tasks</a>
@@ -69,7 +75,7 @@ export default function ErranderDirections() {
   const nextAction = getNextAction();
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
+    <main className="max-w-4xl mx-auto px-4 py-8 animate-fade-in mobile-safe-area">
       <h1 className="text-2xl font-bold mb-6 flex gap-2 items-center text-primary">
         <Map /> Task Directions & Navigation
       </h1>
