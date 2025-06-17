@@ -30,7 +30,7 @@ export default function Home() {
         <Card className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl border-0">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-2xl font-bold tracking-tight mb-2 dark:text-white">
-              Welcome to ErrandDash
+              Welcome to MjuziGo
             </CardTitle>
             <CardDescription className="text-gray-600 dark:text-gray-300">
               Your trusted partner for getting things done

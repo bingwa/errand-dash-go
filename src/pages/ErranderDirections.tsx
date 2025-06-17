@@ -55,9 +55,12 @@ export default function ErranderDirections() {
         <div className="text-center py-12">
           <Navigation className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Active Task</h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
             Accept a task to view live navigation and directions!
           </p>
+          <Button asChild>
+            <a href="/tasks">Browse Available Tasks</a>
+          </Button>
         </div>
       </main>
     );
