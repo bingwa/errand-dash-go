@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import JobCard, { Job } from "@/components/JobCard";
 import { Tab } from "@headlessui/react";
@@ -7,7 +6,8 @@ import { useTask } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, DollarSign, RefreshCw, Bell } from "lucide-react";
+import { MapPin, Clock, DollarSign, RefreshCw, Bell, Navigation } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const MOCK_CUSTOMER_JOBS: Job[] = [
   {
@@ -46,7 +46,7 @@ const Tasks = () => {
   const [role] = useState((localStorage.getItem("role") as "customer" | "errander") || "customer");
   const [tabs] = useState(role === "customer" ? ["Active", "Completed"] : ["Available", "Active", "Completed"]);
   const [refreshing, setRefreshing] = useState(false);
-  const { availableTasks, erranderActiveTask, acceptTask, newTaskNotification, clearNewTaskNotification } = useTask();
+  const { availableTasks, erranderActiveTask, acceptTask, newTaskNotification, clearNewTaskNotification, updateTaskStatus } = useTask();
 
   function getJobs(tab: string) {
     if (role === "customer") {
@@ -81,6 +81,32 @@ const Tasks = () => {
     acceptTask(taskId);
     clearNewTaskNotification();
     alert("Task accepted successfully! Check the Active tab to see your task.");
+  };
+
+  const handleUpdateTaskStatus = () => {
+    if (!erranderActiveTask) return;
+    
+    const statusFlow = {
+      'assigned': 'en-route',
+      'en-route': 'in-progress', 
+      'in-progress': 'completed'
+    };
+    
+    const nextStatus = statusFlow[erranderActiveTask.status as keyof typeof statusFlow];
+    if (nextStatus) {
+      updateTaskStatus(erranderActiveTask.id, nextStatus as any);
+    }
+  };
+
+  const getNextActionText = () => {
+    if (!erranderActiveTask) return '';
+    
+    switch (erranderActiveTask.status) {
+      case 'assigned': return 'Start Journey';
+      case 'en-route': return 'Arrive at Location';
+      case 'in-progress': return 'Complete Task';
+      default: return '';
+    }
   };
 
   const handleAction = (job: Job) => {
@@ -166,6 +192,11 @@ const Tasks = () => {
                   {availableTasks.length}
                 </Badge>
               )}
+              {tab === "Active" && role === "errander" && erranderActiveTask && (
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  1
+                </Badge>
+              )}
             </Tab>
           ))}
         </Tab.List>
@@ -241,8 +272,84 @@ const Tasks = () => {
                 </div>
               )}
               
+              {/* Active Tasks for Erranders */}
+              {role === "errander" && tab === "Active" && (
+                <div className="space-y-4">
+                  {!erranderActiveTask ? (
+                    <div className="p-12 text-muted-foreground text-center w-full">
+                      <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                      <p className="text-lg mb-2">No active tasks</p>
+                      <p className="text-sm">Accept a task from the Available tab to get started!</p>
+                    </div>
+                  ) : (
+                    <Card className="border border-emerald-200 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-900/20">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-lg mb-1 text-gray-900 dark:text-white">{erranderActiveTask.title}</CardTitle>
+                            <Badge variant="outline" className="mb-2">
+                              {erranderActiveTask.status.replace('-', ' ')}
+                            </Badge>
+                            <p className="text-sm text-muted-foreground">{erranderActiveTask.description}</p>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-center gap-1 text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                              <DollarSign className="w-4 h-4" />
+                              KSh {erranderActiveTask.amount}
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div className="flex items-center gap-2 text-sm">
+                            <MapPin className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">From:</span>
+                            <span className="text-gray-900 dark:text-white">{erranderActiveTask.userLocation}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <MapPin className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">To:</span>
+                            <span className="text-gray-900 dark:text-white">{erranderActiveTask.taskLocation}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Link to="/directions" className="flex-1">
+                            <Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2">
+                              <Navigation className="w-4 h-4" />
+                              View Directions
+                            </Button>
+                          </Link>
+                          
+                          {erranderActiveTask.status !== 'completed' && (
+                            <Button 
+                              onClick={handleUpdateTaskStatus}
+                              className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                            >
+                              {getNextActionText()}
+                            </Button>
+                          )}
+                        </div>
+
+                        {erranderActiveTask.status === 'completed' && (
+                          <div className="mt-4 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg text-center">
+                            <p className="text-green-800 dark:text-green-200 font-semibold">
+                              ✅ Task Completed!
+                            </p>
+                            <p className="text-green-600 dark:text-green-400 text-sm">
+                              Waiting for customer payment...
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+              
               {/* Regular jobs for other tabs */}
-              {(role === "customer" || tab !== "Available") && (
+              {(role === "customer" || (tab !== "Available" && tab !== "Active")) && (
                 <div className="flex flex-wrap gap-6">
                   {getJobs(tab).length === 0 && (
                     <div className="p-12 text-muted-foreground text-center w-full">

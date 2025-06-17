@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export interface Task {
@@ -31,6 +30,7 @@ interface TaskContextType {
   getTaskById: (taskId: string) => Task | undefined;
   newTaskNotification: Task | null;
   clearNewTaskNotification: () => void;
+  completeErranderTask: (taskId: string) => void;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -294,6 +294,17 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setNewTaskNotification(null);
   };
 
+  const completeErranderTask = (taskId: string) => {
+    setTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, status: 'completed' } : task
+    ));
+    
+    // Update errander's active task if it matches
+    setErranderActiveTask(prev => 
+      prev && prev.id === taskId ? { ...prev, status: 'completed' } : prev
+    );
+  };
+
   const activeTask = tasks.find(task => 
     ['pending', 'assigned', 'en-route', 'in-progress', 'completed', 'checkout'].includes(task.status)
   ) || null;
@@ -309,7 +320,8 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       acceptTask,
       getTaskById,
       newTaskNotification,
-      clearNewTaskNotification
+      clearNewTaskNotification,
+      completeErranderTask
     }}>
       {children}
     </TaskContext.Provider>
