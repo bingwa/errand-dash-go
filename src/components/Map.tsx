@@ -15,6 +15,8 @@ interface MapProps {
   erranders?: Errander[];
 }
 
+const DEFAULT_MAPBOX_TOKEN = "pk.eyJ1IjoieWFvbW9vbiIsImEiOiJjbWJ5MjVleTIxa2t4Mmlwd2FxYXFtcWo3In0.Sj9Vwy2r-m3GkNdxpBNpqg";
+
 const Map: React.FC<MapProps> = ({ userCoords, erranders = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
