@@ -1,9 +1,30 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const MapboxTokenPrompt = ({ onToken }: { onToken: (token: string) => void }) => {
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check for existing token on mount
+  useEffect(() => {
+    const existingToken = localStorage.getItem("mapbox_token");
+    if (existingToken && existingToken.startsWith("pk.")) {
+      onToken(existingToken);
+      return;
+    }
+    setIsLoading(false);
+  }, [onToken]);
+
+  if (isLoading) {
+    return (
+      <div className="bg-background border rounded-lg shadow-lg max-w-lg mx-auto mt-10 p-8 text-center animate-fade-in">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
+        <p>Loading map...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background border rounded-lg shadow-lg max-w-lg mx-auto mt-10 p-8 text-center animate-fade-in">
       <h3 className="font-bold text-2xl mb-2">Mapbox Map Access Token Required</h3>
