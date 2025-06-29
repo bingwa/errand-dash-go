@@ -1,8 +1,8 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTask } from "@/contexts/TaskContext";
 import Map from "@/components/Map";
-import MapboxTokenPrompt from "@/components/MapboxTokenPrompt";
 import { Map as MapIcon, ShoppingBag, Package, Sparkles, User2, ListTodo, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -69,7 +69,6 @@ const BookErrand = () => {
   const [service, setService] = useState<keyof typeof SERVICE_CONFIG>("groceries");
   const [fields, setFields] = useState<Record<string, string>>({});
   const [coords, setCoords] = useState<[number, number] | undefined>(undefined);
-  const [token, setToken] = useState(localStorage.getItem("mapbox_token"));
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { createTask } = useTask();
@@ -77,10 +76,20 @@ const BookErrand = () => {
   const config = SERVICE_CONFIG[service];
 
   const getGeocode = async (address: string) => {
-    if (!token) return;
-    const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${token}`);
-    const data = await res.json();
-    return data?.features?.[0]?.center as [number, number] | undefined;
+    const token = localStorage.getItem("mapbox_token");
+    if (!token) {
+      console.warn("No Mapbox token available for geocoding");
+      return;
+    }
+    
+    try {
+      const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${token}`);
+      const data = await res.json();
+      return data?.features?.[0]?.center as [number, number] | undefined;
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      return;
+    }
   };
 
   const handleLocate = async () => {
@@ -138,9 +147,6 @@ const BookErrand = () => {
     }
   };
 
-  if (!token)
-    return <MapboxTokenPrompt onToken={(t) => setToken(t)} />;
-
   return (
     <div className="flex flex-col lg:flex-row gap-12 p-8 max-w-6xl mx-auto mt-8 animate-fade-in rounded-2xl bg-gradient-to-br from-white to-muted/30 shadow-xl border">
       {/* Form */}
@@ -189,7 +195,7 @@ const BookErrand = () => {
             </div>
           )}
           <button
-            className="bg-primary text-primary-foreground rounded py-2 px-1 font-bold mt-3 hover:bg-primary/90 shadow-xl transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="bg-primary text-primary-foreground rounded py-2 px-1 font-bold mt-3 hover:bg-primary/90 shadow-xl transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             type="button"
             onClick={handleLocate}
             disabled={isSubmitting}
