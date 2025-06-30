@@ -6,6 +6,8 @@ import Map from "@/components/Map";
 import { Map as MapIcon, ShoppingBag, Package, Sparkles, User2, ListTodo, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
+const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+
 const SERVICE_CONFIG = {
   groceries: {
     icon: <ShoppingBag className="w-6 h-6 mr-1 inline text-primary"/>,
