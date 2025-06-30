@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTask } from "@/contexts/TaskContext";
@@ -6,6 +5,7 @@ import Map from "@/components/Map";
 import { Map as MapIcon, ShoppingBag, Package, Sparkles, User2, ListTodo, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
+// Securely access the Mapbox token from environment variables
 const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const SERVICE_CONFIG = {
@@ -78,18 +78,23 @@ const BookErrand = () => {
   const config = SERVICE_CONFIG[service];
 
   const getGeocode = async (address: string) => {
-    const token = localStorage.getItem("mapbox_token");
-    if (!token) {
-      console.warn("No Mapbox token available for geocoding");
+    if (!mapboxToken) {
+      toast.error("Map service is not available. Please contact administrator.");
+      console.error("Mapbox token is not configured. Set VITE_MAPBOX_TOKEN in .env file.");
       return;
     }
     
     try {
-      const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${token}`);
+      const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxToken}`);
       const data = await res.json();
-      return data?.features?.[0]?.center as [number, number] | undefined;
+      const center = data?.features?.[0]?.center as [number, number] | undefined;
+      if (!center) {
+        toast.error(`Could not find location: ${address}`);
+      }
+      return center;
     } catch (error) {
       console.error("Geocoding error:", error);
+      toast.error("An error occurred while finding the location.");
       return;
     }
   };
@@ -98,9 +103,11 @@ const BookErrand = () => {
     const locKey = Object.keys(fields).find(k =>
       /location|pickup/i.test(k) && fields[k]
     );
-    if (locKey) {
+    if (locKey && fields[locKey]) {
       const c = await getGeocode(fields[locKey]);
       if (c) setCoords(c);
+    } else {
+        toast.info("Please enter a pickup or task location to find nearby errand runners.");
     }
   };
 
@@ -113,31 +120,27 @@ const BookErrand = () => {
     setIsSubmitting(true);
 
     try {
-      // Validate required fields
-      const requiredFields = config.fields.filter(f => f.key !== 'notes');
+      const requiredFields = config.fields.filter(f => !f.type.includes('textarea')); // A simple way to treat textareas as optional
       const missingFields = requiredFields.filter(f => !fields[f.key]?.trim());
       
       if (missingFields.length > 0) {
-        toast.error('Please fill in all required fields');
+        toast.error(`Please fill in: ${missingFields.map(f => f.label).join(', ')}`);
         setIsSubmitting(false);
         return;
       }
 
-      // Create the task
       const taskData = {
         type: service,
         title: config.label,
-        description: fields.notes || fields.description || `${config.label} task`,
+        description: fields.notes || fields.description || fields.items || `${config.label} task`,
         userLocation: fields.userLocation,
-        taskLocation: fields.pickup || fields.location || fields.taskLocation,
-        amount: Math.floor(Math.random() * 800) + 200, // Random amount for demo
+        taskLocation: fields.pickup || fields.location,
+        amount: Math.floor(Math.random() * 800) + 200, 
       };
 
       createTask(taskData);
+      toast.success('Task created! Redirecting to tracking...');
       
-      toast.success('Task created successfully! Finding an errander for you...');
-      
-      // Navigate to tracking page after short delay
       setTimeout(() => {
         navigate('/tracking');
       }, 1500);
@@ -151,7 +154,6 @@ const BookErrand = () => {
 
   return (
     <div className="flex flex-col lg:flex-row gap-12 p-8 max-w-6xl mx-auto mt-8 animate-fade-in rounded-2xl bg-gradient-to-br from-white to-muted/30 shadow-xl border">
-      {/* Form */}
       <section className="flex-1 rounded-xl bg-card shadow p-8 border border-primary/10 md:min-w-[370px]">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-2 tracking-tight text-primary/80">
           <MapIcon className="w-8 h-8" />
@@ -162,9 +164,7 @@ const BookErrand = () => {
             <button
               aria-label={svc.label}
               key={key}
-              className={`px-3 py-2 rounded-full flex items-center gap-1 font-semibold border border-transparent shadow-sm transition text-sm
-                ${service === key ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-muted text-primary hover:border-primary/40 hover:bg-muted/80"}
-              `}
+              className={`px-3 py-2 rounded-full flex items-center gap-1 font-semibold border border-transparent shadow-sm transition text-sm ${service === key ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-muted text-primary hover:border-primary/40 hover:bg-muted/80"}`}
               onClick={() => { setService(key as keyof typeof SERVICE_CONFIG); setFields({}); setCoords(undefined); }}
             >
               {svc.icon}{svc.label}
@@ -182,7 +182,7 @@ const BookErrand = () => {
                   placeholder={field.placeholder}
                   value={fields[field.key] || ""}
                   onChange={e => handleField(field.key, e.target.value)}
-                  required={field.key !== 'notes'}
+                  required={!field.type.includes('textarea')}
                 />
               ) : (
                 <textarea
@@ -191,7 +191,6 @@ const BookErrand = () => {
                   rows={3}
                   value={fields[field.key] || ""}
                   onChange={e => handleField(field.key, e.target.value)}
-                  required={field.key !== 'notes'}
                 />
               )}
             </div>
@@ -200,7 +199,7 @@ const BookErrand = () => {
             className="bg-primary text-primary-foreground rounded py-2 px-1 font-bold mt-3 hover:bg-primary/90 shadow-xl transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             type="button"
             onClick={handleLocate}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !mapboxToken}
           >
             Locate & Show Available Erranders
           </button>
@@ -210,23 +209,12 @@ const BookErrand = () => {
             type="submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                Creating Task...
-              </>
-            ) : (
-              <>
-                <CheckCircle className="w-5 h-5" />
-                Book This Errand
-              </>
-            )}
+            {isSubmitting ? "Creating Task..." : "Book This Errand"}
           </button>
         </form>
       </section>
-      {/* Map */}
       <aside className="flex-1 min-w-[330px]">
-        <Map userCoords={coords} erranders={MOCK_ERRANDERS} />
+        <Map mapboxToken={mapboxToken} userCoords={coords} erranders={MOCK_ERRANDERS} />
       </aside>
     </div>
   );
