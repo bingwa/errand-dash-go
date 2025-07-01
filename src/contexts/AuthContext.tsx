@@ -63,15 +63,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .single()
           .then(({ data: profile }) => {
             setUserProfile(profile);
-            setLoading(false);
           })
           .catch((error) => {
             console.error('Error fetching profile:', error);
+          })
+          .finally(() => {
             setLoading(false);
           });
       } else {
         setLoading(false);
       }
+    }).catch((error) => {
+      console.error('Error getting session:', error);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
