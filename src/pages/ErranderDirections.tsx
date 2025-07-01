@@ -154,7 +154,10 @@ export default function ErranderDirections() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <MapComponent />
+          <MapComponent 
+            userCoords={[-1.286389, 36.817223]}
+            erranders={[]}
+          />
           <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 text-center">
             🗺️ Interactive map showing route from your location to the task destination
           </div>
