@@ -65,7 +65,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setUserProfile(profile);
             setLoading(false);
           })
-          .catch(() => setLoading(false));
+          .catch((error) => {
+            console.error('Error fetching profile:', error);
+            setLoading(false);
+          });
       } else {
         setLoading(false);
       }
