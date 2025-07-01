@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { User2, Users, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import userAvatars from "@/data/userAvatars";
-import erranderAvatars from "@/data/erranderAvatars";
 
 const roles = [
   { 
@@ -67,26 +65,6 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Featured sections */}
-      <div className="mt-8 grid grid-cols-2 gap-12">
-        <div>
-          <span className="block mb-2 text-white/80 text-xs font-medium">Featured Users</span>
-          <div className="flex gap-2">
-            {userAvatars.slice(0,3).map(u => (
-              <img key={u.name} src={u.avatarUrl} className="w-12 h-12 rounded-full ring-2 ring-white/50" alt={u.name} title={u.name} />
-            ))}
-          </div>
-        </div>
-        <div>
-          <span className="block mb-2 text-white/80 text-xs font-medium">Top Erranders</span>
-          <div className="flex gap-2">
-            {erranderAvatars.slice(0,3).map(e => (
-              <img key={e.name} src={e.avatarUrl} className="w-12 h-12 rounded-full ring-2 ring-white/50" alt={e.name} title={e.name} />
-            ))}
-          </div>
-        </div>
       </div>
     </main>
   );

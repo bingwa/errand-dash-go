@@ -87,9 +87,9 @@ export default function Auth() {
       } else {
         toast({
           title: "Success",
-          description: "Password reset email sent! Check your inbox.",
+          description: "Password reset code sent! Check your email.",
         });
-        navigate("/reset-password");
+        navigate(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
       }
     } catch (error) {
       toast({
@@ -281,7 +281,7 @@ export default function Auth() {
                 Forgot Password
               </CardTitle>
               <CardDescription className="dark:text-gray-300">
-                Enter your email to receive a password reset link
+                Enter your email to receive a password reset code
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -296,7 +296,7 @@ export default function Auth() {
                 />
               </div>
               <Button className="w-full mt-6" onClick={handleForgotPassword} disabled={loading}>
-                {loading ? "Sending..." : "Send Reset Link"}
+                {loading ? "Sending..." : "Send Reset Code"}
               </Button>
               <Button variant="link" className="w-full dark:text-gray-300" onClick={() => setStep("login")}>
                 Back to Sign In
@@ -567,28 +567,6 @@ export default function Auth() {
         )}
         
       </div>
-
-      {/* Featured sections */}
-      {step === "pick" && (
-        <div className="mt-8 grid grid-cols-2 gap-12">
-          <div>
-            <span className="block mb-2 text-white/80 text-xs font-medium">Featured Users</span>
-            <div className="flex gap-2">
-              {userAvatars.slice(0,3).map(u => (
-                <img key={u.name} src={u.avatarUrl} className="w-12 h-12 rounded-full ring-2 ring-white/50" alt={u.name} title={u.name} />
-              ))}
-            </div>
-          </div>
-          <div>
-            <span className="block mb-2 text-white/80 text-xs font-medium">Top Erranders</span>
-            <div className="flex gap-2">
-              {erranderAvatars.slice(0,3).map(e => (
-                <img key={e.name} src={e.avatarUrl} className="w-12 h-12 rounded-full ring-2 ring-white/50" alt={e.name} title={e.name} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

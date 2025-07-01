@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
+import VerifyOTP from "./pages/VerifyOTP";
 import ResetPassword from "./pages/ResetPassword";
 import UserDashboard from "./pages/UserDashboard";
 import ErranderDashboard from "./pages/ErranderDashboard";
@@ -46,6 +47,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={!user ? <Home /> : <Navigate to="/dashboard" />} />
         <Route path="/auth" element={!user ? <Auth /> : <Navigate to="/dashboard" />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={
           user

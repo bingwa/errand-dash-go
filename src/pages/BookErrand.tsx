@@ -1,9 +1,11 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTask } from "@/contexts/TaskContext";
 import Map from "@/components/Map";
-import { Map as MapIcon, ShoppingBag, Package, Sparkles, User2, ListTodo, CheckCircle } from "lucide-react";
+import { Map as MapIcon, ShoppingBag, Package, Sparkles, User2, ListTodo, CheckCircle, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 // Securely access the Mapbox token from environment variables
 const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -72,10 +74,46 @@ const BookErrand = () => {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [coords, setCoords] = useState<[number, number] | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
   
   const { createTask } = useTask();
   const navigate = useNavigate();
   const config = SERVICE_CONFIG[service];
+
+  useEffect(() => {
+    // Request user's location on component mount
+    requestUserLocation();
+  }, []);
+
+  const requestUserLocation = () => {
+    setLocationLoading(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const userCoords: [number, number] = [longitude, latitude];
+          setUserLocation(userCoords);
+          setCoords(userCoords);
+          setLocationLoading(false);
+          toast.success("Location detected successfully!");
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setLocationLoading(false);
+          toast.error("Could not detect your location. Please enter it manually.");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        }
+      );
+    } else {
+      setLocationLoading(false);
+      toast.error("Geolocation is not supported by this browser.");
+    }
+  };
 
   const getGeocode = async (address: string) => {
     if (!mapboxToken) {
@@ -159,6 +197,31 @@ const BookErrand = () => {
           <MapIcon className="w-8 h-8" />
           Book an Errand
         </h1>
+        
+        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-2 mb-2">
+            <MapPin className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Location Services</span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={requestUserLocation}
+              disabled={locationLoading}
+              variant="outline"
+              size="sm"
+              className="text-blue-600 border-blue-300 hover:bg-blue-50"
+            >
+              {locationLoading ? "Detecting..." : "Use My Location"}
+            </Button>
+            {userLocation && (
+              <span className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Location detected
+              </span>
+            )}
+          </div>
+        </div>
+
         <div className="flex gap-2 my-3 flex-wrap">
           {Object.entries(SERVICE_CONFIG).map(([key, svc]) =>
             <button
@@ -174,10 +237,10 @@ const BookErrand = () => {
         <form className="flex flex-col gap-5 mt-5" onSubmit={handleSubmit}>
           {config.fields.map(field =>
             <div key={field.key}>
-              <label className="font-bold text-sm mb-2 block">{field.label}</label>
+              <label className="font-bold text-sm mb-2 block text-foreground">{field.label}</label>
               {field.type === "text" ? (
                 <input
-                  className="border px-3 py-2 rounded w-full ring-1 ring-accent/30 focus:ring-primary focus:outline-none font-semibold"
+                  className="border border-border bg-background text-foreground px-3 py-2 rounded w-full ring-1 ring-accent/30 focus:ring-primary focus:outline-none font-medium placeholder:text-muted-foreground"
                   type="text"
                   placeholder={field.placeholder}
                   value={fields[field.key] || ""}
@@ -186,7 +249,7 @@ const BookErrand = () => {
                 />
               ) : (
                 <textarea
-                  className="border px-3 py-2 rounded w-full ring-1 ring-accent/30 focus:ring-primary focus:outline-none"
+                  className="border border-border bg-background text-foreground px-3 py-2 rounded w-full ring-1 ring-accent/30 focus:ring-primary focus:outline-none font-medium placeholder:text-muted-foreground"
                   placeholder={field.placeholder}
                   rows={3}
                   value={fields[field.key] || ""}
@@ -214,7 +277,7 @@ const BookErrand = () => {
         </form>
       </section>
       <aside className="flex-1 min-w-[330px]">
-        <Map mapboxToken={mapboxToken} userCoords={coords} erranders={MOCK_ERRANDERS} />
+        <Map mapboxToken={mapboxToken} userCoords={coords || userLocation || undefined} erranders={MOCK_ERRANDERS} />
       </aside>
     </div>
   );

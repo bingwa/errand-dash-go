@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -13,9 +14,28 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasValidSession, setHasValidSession] = useState(false);
   const { updatePassword } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setHasValidSession(true);
+      } else {
+        toast({
+          title: "Session Required",
+          description: "Please verify your email first to reset your password.",
+          variant: "destructive"
+        });
+        navigate("/auth");
+      }
+    };
+
+    checkSession();
+  }, [navigate, toast]);
 
   const handlePasswordReset = async () => {
     if (!password || !confirmPassword) {
@@ -59,6 +79,8 @@ export default function ResetPassword() {
           title: "Success",
           description: "Password updated successfully! Please sign in with your new password.",
         });
+        // Sign out the user after password reset
+        await supabase.auth.signOut();
         navigate("/auth");
       }
     } catch (error) {
@@ -71,6 +93,14 @@ export default function ResetPassword() {
       setLoading(false);
     }
   };
+
+  if (!hasValidSession) {
+    return (
+      <main className="flex flex-col min-h-screen items-center justify-center px-4 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 mobile-safe-area">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex flex-col min-h-screen items-center justify-center px-4 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 mobile-safe-area">
