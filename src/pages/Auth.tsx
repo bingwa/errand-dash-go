@@ -3,7 +3,7 @@ import { User2, Users, LogIn, ArrowLeft, Upload, CheckCircle, AlertCircle, Eye, 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import userAvatars from "@/data/userAvatars";
 import erranderAvatars from "@/data/erranderAvatars";
@@ -34,7 +34,7 @@ const requiredDocs = [
 ];
 
 export default function Auth() {
-  const [step, setStep] = useState<"pick" | "login" | "register" | "docs">("pick");
+  const [step, setStep] = useState<"pick" | "login" | "register" | "docs" | "forgot">("pick");
   const [role, setRole] = useState<"user" | "errander" | "">("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -51,7 +51,7 @@ export default function Auth() {
   const [docs, setDocs] = useState(requiredDocs);
   const [loading, setLoading] = useState(false);
 
-  const { signUp, signIn } = useAuth();
+  const { signUp, signIn, resetPassword } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -63,6 +63,43 @@ export default function Auth() {
     const newDocs = [...docs];
     newDocs[index].uploaded = true;
     setDocs(newDocs);
+  }
+
+  async function handleForgotPassword() {
+    if (!formData.email) {
+      toast({
+        title: "Error",
+        description: "Please enter your email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await resetPassword(formData.email);
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Password reset email sent! Check your inbox.",
+        });
+        navigate("/reset-password");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleAuth() {
@@ -196,7 +233,7 @@ export default function Auth() {
           <Card className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl border-0">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-2xl font-bold tracking-tight mb-2 dark:text-white">
-                Welcome to ErrandDash
+                Welcome to MjuziGo
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-300">
                 Your trusted partner for getting things done
@@ -226,6 +263,44 @@ export default function Auth() {
                   Already have an account? Sign In
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {step === "forgot" && (
+          <Card className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl border-0">
+            <CardHeader className="text-center">
+              <Button
+                variant="ghost"
+                onClick={() => setStep("login")}
+                className="absolute left-4 top-4 p-2 dark:text-white"
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              <CardTitle className="text-xl font-bold dark:text-white">
+                Forgot Password
+              </CardTitle>
+              <CardDescription className="dark:text-gray-300">
+                Enter your email to receive a password reset link
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2 dark:text-gray-200">Email</label>
+                <input
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                  placeholder="Enter your email"
+                  type="email"
+                  value={formData.email}
+                  onChange={e => handleInputChange("email", e.target.value)}
+                />
+              </div>
+              <Button className="w-full mt-6" onClick={handleForgotPassword} disabled={loading}>
+                {loading ? "Sending..." : "Send Reset Link"}
+              </Button>
+              <Button variant="link" className="w-full dark:text-gray-300" onClick={() => setStep("login")}>
+                Back to Sign In
+              </Button>
             </CardContent>
           </Card>
         )}
@@ -276,6 +351,11 @@ export default function Auth() {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
                 </div>
+              </div>
+              <div className="text-center">
+                <Button variant="link" onClick={() => setStep("forgot")} className="text-sm text-gray-600 dark:text-gray-300">
+                  Forgot your password?
+                </Button>
               </div>
               <Button className="w-full mt-6" onClick={handleAuth} disabled={loading}>
                 <LogIn className="mr-2" size={18} />
